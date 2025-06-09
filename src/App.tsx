@@ -7,6 +7,7 @@ import Home from "./pages/Home";
 import Catalog from "./pages/Catalog";
 import Cart from "./pages/Cart";
 import Order from "./pages/Order";
+import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
