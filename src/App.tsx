@@ -23,11 +23,12 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/brand/mustang" element={<BrandPage />} />
+          {/* <Route path="/brand/mustang" element={<BrandPage />} />
           <Route path="/brand/osse" element={<BrandPage />} />
           <Route path="/brand/hawk" element={<BrandPage />} />
-          <Route path="/brand/diverso" element={<BrandPage />} />
-          <Route path="/catalog/:brandName?/:type?" element={<Catalog />} />
+          <Route path="/brand/diverso" element={<BrandPage />} /> */}
+          <Route path="/brand/:brandName" element={<BrandPage />} />
+          <Route path="/catalog/:brand?/:type?" element={<Catalog />} />
           <Route path="/login" element={<Login />} />
           <Route
             path="/catalog"
