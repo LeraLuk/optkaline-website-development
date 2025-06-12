@@ -2,9 +2,12 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Glasses, ShoppingCart, FileText, Truck } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 import Header from "@/components/Header";
 
 const Home = () => {
+  const { isAuthenticated } = useAuth();
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
@@ -17,13 +20,15 @@ const Home = () => {
             Ваш надёжный партнёр в оптовых поставках очков премиум-класса.
             Работаем с ведущими мировыми брендами.
           </p>
-          <Link to="/catalog">
+          <Link to={isAuthenticated ? "/catalog" : "/login"}>
             <Button
               size="lg"
               className="bg-white text-blue-600 hover:bg-gray-100"
             >
               <Glasses className="mr-2 h-5 w-5" />
-              Перейти в каталог
+              {isAuthenticated
+                ? "Перейти в каталог"
+                : "Войти для просмотра каталога"}
             </Button>
           </Link>
         </div>
@@ -125,9 +130,9 @@ const Home = () => {
           <p className="text-gray-600 mb-8">
             Откройте каталог и выберите товары для вашего магазина
           </p>
-          <Link to="/catalog">
+          <Link to={isAuthenticated ? "/catalog" : "/login"}>
             <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
-              Открыть каталог
+              {isAuthenticated ? "Открыть каталог" : "Войти в систему"}
             </Button>
           </Link>
         </div>
