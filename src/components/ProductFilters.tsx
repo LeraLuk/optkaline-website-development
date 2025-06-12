@@ -16,22 +16,19 @@ interface ProductFiltersProps {
   filters: Filters;
   onChange: (filters: Filters) => void;
   onReset: () => void;
+  initialFilters?: Filters;
 }
 
 const ProductFilters = ({
   filters,
   onChange,
   onReset,
+  initialFilters,
 }: ProductFiltersProps) => {
-  const brands = ["Ray-Ban", "Oakley", "Prada", "Tom Ford", "Gucci", "Nike"];
+  const brands = ["Mustang", "Osse", "Hawk", "Diverso"];
   const genders = ["мужские", "женские", "детские", "унисекс"];
   const seasons = ["весна-лето", "осень-зима", "всесезонные"];
-  const types = [
-    "солнцезащитные",
-    "корригирующие",
-    "компьютерные",
-    "спортивные",
-  ];
+  const types = ["солнцезащитные", "медицинская оптика"];
 
   const handleArrayFilter = (
     category: keyof Filters,
@@ -54,12 +51,20 @@ const ProductFilters = ({
     });
   };
 
+  const handleReset = () => {
+    if (initialFilters) {
+      onChange(initialFilters);
+    } else {
+      onReset();
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           Фильтры
-          <Button variant="outline" size="sm" onClick={onReset}>
+          <Button variant="outline" size="sm" onClick={handleReset}>
             Сбросить
           </Button>
         </CardTitle>

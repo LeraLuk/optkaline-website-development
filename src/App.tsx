@@ -9,6 +9,7 @@ import Cart from "./pages/Cart";
 import Order from "./pages/Order";
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
+import BrandPage from "./pages/BrandPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import NotFound from "./pages/NotFound";
 
@@ -22,6 +23,11 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/brand/mustang" element={<BrandPage />} />
+          <Route path="/brand/osse" element={<BrandPage />} />
+          <Route path="/brand/hawk" element={<BrandPage />} />
+          <Route path="/brand/diverso" element={<BrandPage />} />
+          <Route path="/catalog/:brand?/:type?" element={<Catalog />} />
           <Route path="/login" element={<Login />} />
           <Route
             path="/catalog"

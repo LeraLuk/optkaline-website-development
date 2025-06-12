@@ -5,7 +5,7 @@ export interface Product {
   price: number;
   gender: "мужские" | "женские" | "детские" | "унисекс";
   season: "весна-лето" | "осень-зима" | "всесезонные";
-  type: "солнцезащитные" | "корригирующие" | "компьютерные" | "спортивные";
+  type: "солнцезащитные" | "медицинская оптика";
   image: string;
   description: string;
   inStock: number;

@@ -34,54 +34,56 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Features */}
+      {/* Brand Cards */}
       <section className="py-20">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">
-            Почему выбирают нас
-          </h2>
+          <h2 className="text-3xl font-bold text-center mb-12">Наши бренды</h2>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <Card>
-              <CardContent className="p-6 text-center">
-                <Glasses className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-                <h3 className="font-semibold mb-2">Премиум бренды</h3>
-                <p className="text-gray-600 text-sm">
-                  Ray-Ban, Oakley, Prada, Tom Ford и другие ведущие
-                  производители
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-6 text-center">
-                <ShoppingCart className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-                <h3 className="font-semibold mb-2">Оптовые цены</h3>
-                <p className="text-gray-600 text-sm">
-                  Выгодные условия для розничных магазинов и дистрибьюторов
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-6 text-center">
-                <FileText className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-                <h3 className="font-semibold mb-2">Простое оформление</h3>
-                <p className="text-gray-600 text-sm">
-                  Удобная корзина и экспорт заказов в Excel для бухгалтерии
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-6 text-center">
-                <Truck className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-                <h3 className="font-semibold mb-2">Быстрая доставка</h3>
-                <p className="text-gray-600 text-sm">
-                  Отгрузка в течение 1-2 рабочих дней по всей России
-                </p>
-              </CardContent>
-            </Card>
+            {[
+              {
+                name: "Mustang",
+                image:
+                  "https://images.unsplash.com/photo-1473496169904-658ba7c44d8a?w=400",
+                description: "Американский стиль и качество",
+              },
+              {
+                name: "Osse",
+                image:
+                  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400",
+                description: "Турецкий премиум-бренд",
+              },
+              {
+                name: "Hawk",
+                image:
+                  "https://images.unsplash.com/photo-1556306535-38febf6782e7?w=400",
+                description: "Для активного образа жизни",
+              },
+              {
+                name: "Diverso",
+                image:
+                  "https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=400",
+                description: "Разнообразие стилей",
+              },
+            ].map((brand) => (
+              <Link key={brand.name} to={`/brand/${brand.name.toLowerCase()}`}>
+                <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+                  <CardContent className="p-0">
+                    <img
+                      src={brand.image}
+                      alt={`Очки ${brand.name}`}
+                      className="w-full h-48 object-cover rounded-t-lg"
+                    />
+                    <div className="p-6">
+                      <h3 className="font-bold text-xl mb-2">{brand.name}</h3>
+                      <p className="text-gray-600 text-sm">
+                        {brand.description}
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
           </div>
         </div>
       </section>
