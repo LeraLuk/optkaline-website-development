@@ -32,12 +32,30 @@ const Header = () => {
             </Link>
             {isAuthenticated && (
               <>
-                <Link
-                  to="/catalog"
-                  className="text-gray-600 hover:text-blue-600 transition-colors"
-                >
-                  Каталог
-                </Link>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      className="text-gray-600 hover:text-blue-600"
+                    >
+                      Бренды
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem asChild>
+                      <Link to="/brand/mustang">Mustang</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/brand/osse">Osse</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/brand/hawk">Hawk</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/brand/diverso">Diverso</Link>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
                 <Link
                   to="/cart"
                   className="text-gray-600 hover:text-blue-600 transition-colors"

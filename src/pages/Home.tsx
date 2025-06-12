@@ -20,17 +20,6 @@ const Home = () => {
             Ваш надёжный партнёр в оптовых поставках очков премиум-класса.
             Работаем с ведущими мировыми брендами.
           </p>
-          <Link to={isAuthenticated ? "/catalog" : "/login"}>
-            <Button
-              size="lg"
-              className="bg-white text-blue-600 hover:bg-gray-100"
-            >
-              <Glasses className="mr-2 h-5 w-5" />
-              {isAuthenticated
-                ? "Перейти в каталог"
-                : "Войти для просмотра каталога"}
-            </Button>
-          </Link>
         </div>
       </section>
 
@@ -130,11 +119,11 @@ const Home = () => {
             Готовы начать сотрудничество?
           </h2>
           <p className="text-gray-600 mb-8">
-            Откройте каталог и выберите товары для вашего магазина
+            Выберите бренд и найдите идеальные очки для вашего магазина
           </p>
-          <Link to={isAuthenticated ? "/catalog" : "/login"}>
+          <Link to="/login">
             <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
-              {isAuthenticated ? "Открыть каталог" : "Войти в систему"}
+              Войти в систему
             </Button>
           </Link>
         </div>
