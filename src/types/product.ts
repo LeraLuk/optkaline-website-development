@@ -11,6 +11,34 @@ export interface Product {
   inStock: number;
 }
 
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  company: string;
+  phone: string;
+  address: string;
+}
+
+export interface AuthState {
+  user: User | null;
+  isAuthenticated: boolean;
+}
+
+export interface LoginFormData {
+  email: string;
+  password: string;
+}
+
+export interface RegisterFormData {
+  email: string;
+  password: string;
+  name: string;
+  company: string;
+  phone: string;
+  address: string;
+}
+
 export interface CartItem {
   product: Product;
   quantity: number;

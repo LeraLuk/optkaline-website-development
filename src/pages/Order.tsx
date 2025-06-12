@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
@@ -9,18 +9,33 @@ import { Textarea } from "@/components/ui/textarea";
 import { useCart } from "@/hooks/useCart";
 import { OrderData } from "@/types/product";
 import * as XLSX from "xlsx";
+import { useAuth } from "@/hooks/useAuth";
 
 const Order = () => {
   const navigate = useNavigate();
   const { items, total, clear } = useCart();
+  const { user } = useAuth();
 
   const [formData, setFormData] = useState({
-    customerName: "",
-    company: "",
-    phone: "",
-    email: "",
-    address: "",
+    customerName: user?.name || "",
+    company: user?.company || "",
+    phone: user?.phone || "",
+    email: user?.email || "",
+    address: user?.address || "",
   });
+
+  // Обновляем данные формы при изменении пользователя
+  React.useEffect(() => {
+    if (user) {
+      setFormData({
+        customerName: user.name,
+        company: user.company,
+        phone: user.phone,
+        email: user.email,
+        address: user.address,
+      });
+    }
+  }, [user]);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
