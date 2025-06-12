@@ -57,14 +57,28 @@ const brandInfo = {
 };
 
 const BrandPage = () => {
-  const { brand } = useParams<{ brand: string }>();
+  const { brandName } = useParams<{ brandName: string }>();
   const { isAuthenticated } = useAuth();
 
-  if (!brand || !brandInfo[brand as keyof typeof brandInfo]) {
-    return <div>Бренд не найден</div>;
+  if (!brandName || !brandInfo[brandName as keyof typeof brandInfo]) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">
+            Бренд не найден
+          </h1>
+          <p className="text-gray-600 mb-6">
+            Возможно, вы перешли по неверной ссылке
+          </p>
+          <Link to="/" className="text-blue-600 hover:text-blue-800">
+            Вернуться на главную
+          </Link>
+        </div>
+      </div>
+    );
   }
 
-  const info = brandInfo[brand as keyof typeof brandInfo];
+  const info = brandInfo[brandName as keyof typeof brandInfo];
 
   return (
     <div className="min-h-screen bg-gray-50">
