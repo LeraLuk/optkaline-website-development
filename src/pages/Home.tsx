@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Glasses, ShoppingCart, FileText, Truck } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 const Home = () => {
   const { isAuthenticated } = useAuth();
@@ -128,6 +129,8 @@ const Home = () => {
           </Link>
         </div>
       </section>
+
+      <Footer />
     </div>
   );
 };

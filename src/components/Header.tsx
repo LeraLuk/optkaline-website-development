@@ -30,6 +30,18 @@ const Header = () => {
             >
               Главная
             </Link>
+            <Link
+              to="/about"
+              className="text-gray-600 hover:text-blue-600 transition-colors"
+            >
+              О нас
+            </Link>
+            <Link
+              to="/contacts"
+              className="text-gray-600 hover:text-blue-600 transition-colors"
+            >
+              Контакты
+            </Link>
             {isAuthenticated && (
               <>
                 <DropdownMenu>

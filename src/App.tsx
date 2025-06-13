@@ -10,6 +10,9 @@ import Order from "./pages/Order";
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
 import BrandPage from "./pages/BrandPage";
+import About from "./pages/About";
+import Contacts from "./pages/Contacts";
+import ProductPage from "./pages/ProductPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import NotFound from "./pages/NotFound";
 
@@ -23,6 +26,9 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contacts" element={<Contacts />} />
+          <Route path="/product/:productId" element={<ProductPage />} />
           {/* <Route path="/brand/mustang" element={<BrandPage />} />
           <Route path="/brand/osse" element={<BrandPage />} />
           <Route path="/brand/hawk" element={<BrandPage />} />

@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useParams } from "react-router-dom";
 import Header from "@/components/Header";
 import ProductCard from "@/components/ProductCard";
 import ProductFilters from "@/components/ProductFilters";
@@ -15,6 +15,7 @@ interface Filters {
 
 const Catalog = () => {
   const [searchParams] = useSearchParams();
+  const { brand: urlBrand, type: urlType } = useParams();
 
   const [filters, setFilters] = useState<Filters>({
     brands: [],
@@ -26,8 +27,8 @@ const Catalog = () => {
 
   // Установка фильтров из URL при загрузке
   useEffect(() => {
-    const brandParam = searchParams.get("brand");
-    const typeParam = searchParams.get("type");
+    const brandParam = urlBrand || searchParams.get("brand");
+    const typeParam = urlType || searchParams.get("type");
 
     if (brandParam || typeParam) {
       setFilters((prev) => ({
@@ -36,7 +37,7 @@ const Catalog = () => {
         types: typeParam ? [typeParam] : prev.types,
       }));
     }
-  }, [searchParams]);
+  }, [searchParams, urlBrand, urlType]);
 
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
