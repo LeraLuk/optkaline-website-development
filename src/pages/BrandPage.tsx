@@ -112,7 +112,7 @@ const BrandPage = () => {
               <Link
                 to={
                   isAuthenticated
-                    ? `/catalog?brand=${brand}&type=солнцезащитные`
+                    ? `/catalog?brand=${brandName}&type=солнцезащитные`
                     : "/login"
                 }
               >
@@ -128,7 +128,7 @@ const BrandPage = () => {
               <Link
                 to={
                   isAuthenticated
-                    ? `/catalog?brand=${brand}&type=медицинская оптика`
+                    ? `/catalog?brand=${brandName}&type=медицинская оптика`
                     : "/login"
                 }
               >
