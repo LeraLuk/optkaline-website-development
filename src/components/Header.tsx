@@ -42,39 +42,37 @@ const Header = () => {
             >
               Контакты
             </Link>
-            {isAuthenticated && (
-              <>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      className="text-gray-600 hover:text-blue-600"
-                    >
-                      Бренды
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <DropdownMenuItem asChild>
-                      <Link to="/brand/mustang">Mustang</Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/brand/osse">Osse</Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/brand/hawk">Hawk</Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/brand/diverso">Diverso</Link>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-                <Link
-                  to="/cart"
-                  className="text-gray-600 hover:text-blue-600 transition-colors"
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="text-gray-600 hover:text-blue-600"
                 >
-                  Корзина
-                </Link>
-              </>
+                  Бренды
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem asChild>
+                  <Link to="/brand/mustang">Mustang</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/brand/osse">Osse</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/brand/hawk">Hawk</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/brand/diverso">Diverso</Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            {isAuthenticated && (
+              <Link
+                to="/cart"
+                className="text-gray-600 hover:text-blue-600 transition-colors"
+              >
+                Корзина
+              </Link>
             )}
           </nav>
 
