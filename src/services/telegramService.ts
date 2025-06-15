@@ -44,18 +44,30 @@ class TelegramService {
     return this.sendMessage(message);
   }
 
-  async notifyNewOrder(orderData: any, excelFile: Blob): Promise<boolean> {
-    const message = `📦 <b>Новый заказ!</b>\n\n👤 <b>Клиент:</b> ${orderData.customerName}\n🏢 <b>Компания:</b> ${orderData.company}\n📞 <b>Телефон:</b> ${orderData.phone}\n📧 <b>Email:</b> ${orderData.email}\n💰 <b>Сумма:</b> ${orderData.total} ₽`;
+  async notifyNewOrder(orderData: any): Promise<boolean> {
+    // Форматируем товары в виде таблицы
+    const itemsTable = orderData.items
+      .map(
+        (item: any, index: number) =>
+          `${index + 1}. ${item.name}\n   Цена: ${item.price.toLocaleString("ru-RU")} ₽\n   Кол-во: ${item.quantity} шт.\n   Итого: ${(item.price * item.quantity).toLocaleString("ru-RU")} ₽`,
+      )
+      .join("\n\n");
 
-    // Сначала отправляем сообщение
-    const messageSent = await this.sendMessage(message);
+    const message = `📦 <b>Новый заказ!</b>
 
-    // Затем отправляем файл
-    const fileName = `Заказ_OptkaLine_${new Date().toISOString().split("T")[0]}.xlsx`;
-    const fileCaption = `📄 Заказ от ${orderData.customerName}`;
-    const fileSent = await this.sendDocument(excelFile, fileName, fileCaption);
+👤 <b>Клиент:</b> ${orderData.customerName}
+🏢 <b>Компания:</b> ${orderData.company}
+📞 <b>Телефон:</b> ${orderData.phone}
+📧 <b>Email:</b> ${orderData.email}
 
-    return messageSent && fileSent;
+📋 <b>ТОВАРЫ:</b>
+${itemsTable}
+
+💰 <b>ОБЩАЯ СУММА: ${orderData.total.toLocaleString("ru-RU")} ₽</b>
+
+📩 Отправлено пользователю @leradeen`;
+
+    return this.sendMessage(message);
   }
 }
 

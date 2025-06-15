@@ -4,17 +4,33 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Product } from "@/types/product";
 import { useCart } from "@/hooks/useCart";
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, Plus, Minus } from "lucide-react";
+import { useState } from "react";
 
 interface ProductCardProps {
   product: Product;
 }
 
 const ProductCard = ({ product }: ProductCardProps) => {
-  const { addItem } = useCart();
+  const { addItem, updateQuantity, items } = useCart();
+  const [showQuantityControls, setShowQuantityControls] = useState(false);
+
+  // Найти текущий товар в корзине
+  const cartItem = items.find((item) => item.product.id === product.id);
+  const currentQuantity = cartItem?.quantity || 0;
 
   const handleAddToCart = () => {
     addItem(product, 1);
+    setShowQuantityControls(true);
+  };
+
+  const handleQuantityChange = (newQuantity: number) => {
+    if (newQuantity <= 0) {
+      updateQuantity(product.id, 0);
+      setShowQuantityControls(false);
+    } else {
+      updateQuantity(product.id, newQuantity);
+    }
   };
 
   return (
@@ -65,16 +81,49 @@ const ProductCard = ({ product }: ProductCardProps) => {
               {product.price.toLocaleString("ru-RU")} ₽
             </div>
 
-            <Button
-              onClick={(e) => {
-                e.preventDefault();
-                handleAddToCart();
-              }}
-              className="w-full bg-blue-600 hover:bg-blue-700"
-              disabled={product.inStock === 0}
-            >
-              <ShoppingCart className="h-4 w-4 mr-2" />В корзину
-            </Button>
+            {!showQuantityControls && currentQuantity === 0 ? (
+              <Button
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleAddToCart();
+                }}
+                className="w-full bg-blue-600 hover:bg-blue-700"
+                disabled={product.inStock === 0}
+              >
+                <ShoppingCart className="h-4 w-4 mr-2" />В корзину
+              </Button>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleQuantityChange(currentQuantity - 1);
+                  }}
+                  variant="outline"
+                  size="icon"
+                  className="h-10 w-10"
+                >
+                  <Minus className="h-4 w-4" />
+                </Button>
+
+                <div className="flex-1 text-center font-semibold bg-gray-50 py-2 rounded">
+                  {currentQuantity}
+                </div>
+
+                <Button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleQuantityChange(currentQuantity + 1);
+                  }}
+                  variant="outline"
+                  size="icon"
+                  className="h-10 w-10"
+                  disabled={currentQuantity >= product.inStock}
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
           </div>
         </CardFooter>
       </Card>
