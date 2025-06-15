@@ -1,4 +1,5 @@
 import { User, AuthState, Order } from "@/types/product";
+import { telegramService } from "@/services/telegramService";
 
 class AuthStore {
   private user: User | null = null;
@@ -51,8 +52,7 @@ class AuthStore {
   register(userData: Omit<User, "id">): boolean {
     const users = this.getStoredUsers();
 
-    // Проверяем, не существует ли уже пользователь
-    if (users.some((u) => u.email === userData.email)) {
+    if (users.find((u) => u.email === userData.email)) {
       return false;
     }
 
@@ -67,6 +67,10 @@ class AuthStore {
     this.user = newUser;
     this.saveToStorage();
     this.notify();
+
+    // Отправляем уведомление в Telegram
+    telegramService.notifyNewRegistration(userData.name, userData.phone);
+
     return true;
   }
 

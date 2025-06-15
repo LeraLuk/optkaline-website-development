@@ -11,6 +11,7 @@ import { OrderData } from "@/types/product";
 import * as XLSX from "xlsx";
 import { useAuth } from "@/hooks/useAuth";
 import { authStore } from "@/store/authStore";
+import { telegramService } from "@/services/telegramService";
 
 const Order = () => {
   const navigate = useNavigate();
@@ -42,7 +43,7 @@ const Order = () => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const exportToExcel = () => {
+  const exportToExcel = async () => {
     const orderData: OrderData = {
       ...formData,
       items,
@@ -89,6 +90,15 @@ const Order = () => {
     ];
 
     XLSX.utils.book_append_sheet(wb, ws, "Заказ");
+
+    // Создаем Blob для отправки в Telegram
+    const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+    const excelBlob = new Blob([excelBuffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+
+    // Отправляем уведомление в Telegram
+    await telegramService.notifyNewOrder(orderData, excelBlob);
 
     // Скачиваем файл
     const fileName = `Заказ_OptkaLine_${new Date().toISOString().split("T")[0]}.xlsx`;
@@ -161,7 +171,7 @@ ${orderData.items
     }
 
     // Экспортируем Excel
-    exportToExcel();
+    await exportToExcel();
   };
 
   if (items.length === 0) {
