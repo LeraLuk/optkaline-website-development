@@ -1,5 +1,6 @@
 import { User, AuthState, Order } from "@/types/product";
 import { telegramService } from "@/services/telegramService";
+import { emailService } from "@/services/emailService";
 
 class AuthStore {
   private user: User | null = null;
@@ -70,6 +71,9 @@ class AuthStore {
 
     // Отправляем уведомление в Telegram
     telegramService.notifyNewRegistration(userData.name, userData.phone);
+
+    // Отправляем данные на email
+    emailService.sendRegistrationNotification(userData.name, userData.phone);
 
     return true;
   }
