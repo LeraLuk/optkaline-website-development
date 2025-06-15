@@ -44,8 +44,16 @@ class TelegramService {
     return this.sendMessage(message);
   }
 
-  async notifyNewOrder(orderData: any): Promise<boolean> {
-    // Форматируем товары в виде таблицы
+  async notifyNewOrder(orderData: any, excelFile?: Blob): Promise<boolean> {
+    if (excelFile) {
+      // Отправляем Excel файл
+      const fileName = `Заказ_OptkaLine_${new Date().toISOString().split("T")[0]}.xlsx`;
+      const caption = `📦 Новый заказ от ${orderData.customerName} (${orderData.company})`;
+
+      return this.sendDocument(excelFile, fileName, caption);
+    }
+
+    // Fallback: отправляем текстовое сообщение если файл не предоставлен
     const itemsTable = orderData.items
       .map(
         (item: any, index: number) =>
