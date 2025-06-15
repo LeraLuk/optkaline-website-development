@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { authStore } from "@/stores/authStore";
+import { authStore } from "@/store/authStore";
 import Header from "@/components/Header";
 import OrderHistory from "@/components/OrderHistory";
 import { Button } from "@/components/ui/button";
