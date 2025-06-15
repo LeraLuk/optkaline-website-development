@@ -10,6 +10,7 @@ import { useCart } from "@/hooks/useCart";
 import { OrderData } from "@/types/product";
 import * as XLSX from "xlsx";
 import { useAuth } from "@/hooks/useAuth";
+import { authStore } from "@/store/authStore";
 
 const Order = () => {
   const navigate = useNavigate();
@@ -98,7 +99,41 @@ const Order = () => {
     navigate("/", { replace: true });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const sendToTelegram = async (orderData: OrderData) => {
+    const telegramMessage = `
+🛍️ *Новый заказ OptkaLine*
+
+📅 *Дата:* ${orderData.orderDate}
+
+👤 *Клиент:*
+• Имя: ${orderData.customerName}
+• Компания: ${orderData.company}
+• Телефон: ${orderData.phone}
+• Email: ${orderData.email}
+• Адрес: ${orderData.address}
+
+📦 *Товары:*
+${orderData.items
+  .map(
+    (item) =>
+      `• ${item.product.name} (${item.product.brand}) × ${item.quantity} = ${(item.product.price * item.quantity).toLocaleString("ru-RU")} ₽`,
+  )
+  .join("\n")}
+
+💰 *Итого: ${orderData.total.toLocaleString("ru-RU")} ₽*
+    `;
+
+    try {
+      const telegramUrl = `https://t.me/leradeen?text=${encodeURIComponent(telegramMessage)}`;
+      window.open(telegramUrl, "_blank");
+      return true;
+    } catch (error) {
+      console.error("Ошибка отправки в Telegram:", error);
+      return false;
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!formData.customerName || !formData.company || !formData.phone) {
@@ -106,6 +141,26 @@ const Order = () => {
       return;
     }
 
+    const orderData: OrderData = {
+      ...formData,
+      items,
+      total,
+      orderDate: new Date().toLocaleDateString("ru-RU"),
+    };
+
+    // Отправляем в Telegram
+    const telegramSent = await sendToTelegram(orderData);
+
+    // Сохраняем заказ в store
+    if (user) {
+      authStore.saveOrder({
+        ...orderData,
+        status: "pending",
+        telegramSent,
+      });
+    }
+
+    // Экспортируем Excel
     exportToExcel();
   };
 
@@ -190,7 +245,7 @@ const Order = () => {
                   type="submit"
                   className="w-full bg-blue-600 hover:bg-blue-700"
                 >
-                  Скачать заказ (Excel)
+                  Оформить заказ
                 </Button>
               </form>
             </CardContent>
@@ -233,6 +288,7 @@ const Order = () => {
 
               <div className="text-sm text-gray-600 mt-4">
                 <p>• Заказ будет сформирован в Excel файле</p>
+                <p>• Уведомление отправится в Telegram @leradeen</p>
                 <p>• Мы свяжемся с вами для подтверждения</p>
                 <p>• Срок обработки заказа: 1-2 рабочих дня</p>
               </div>

@@ -59,3 +59,30 @@ export interface OrderData {
   total: number;
   orderDate: string;
 }
+
+export type OrderStatus =
+  | "pending"
+  | "confirmed"
+  | "processing"
+  | "shipped"
+  | "delivered"
+  | "cancelled";
+
+export interface Order {
+  id: string;
+  userId: string;
+  customerName: string;
+  company: string;
+  phone: string;
+  email: string;
+  address: string;
+  items: CartItem[];
+  total: number;
+  orderDate: string;
+  status: OrderStatus;
+  telegramSent: boolean;
+}
+
+export interface OrderItem extends CartItem {
+  orderId: string;
+}

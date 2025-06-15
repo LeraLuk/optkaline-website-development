@@ -1,4 +1,4 @@
-import { User, AuthState } from "@/types/product";
+import { User, AuthState, Order } from "@/types/product";
 
 class AuthStore {
   private user: User | null = null;
@@ -112,6 +112,44 @@ class AuthStore {
       user: this.user,
       isAuthenticated: this.isAuthenticated(),
     };
+  }
+
+  // Методы для работы с заказами
+  saveOrder(orderData: Omit<Order, "id" | "userId">): Order {
+    if (!this.user) throw new Error("Пользователь не авторизован");
+
+    const order: Order = {
+      ...orderData,
+      id: Date.now().toString(),
+      userId: this.user.id,
+    };
+
+    const orders = this.getStoredOrders();
+    orders.push(order);
+    localStorage.setItem("optka-orders", JSON.stringify(orders));
+
+    return order;
+  }
+
+  getUserOrders(): Order[] {
+    if (!this.user) return [];
+
+    const orders = this.getStoredOrders();
+    const twoYearsAgo = new Date();
+    twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
+
+    return orders
+      .filter((order) => order.userId === this.user!.id)
+      .filter((order) => new Date(order.orderDate) >= twoYearsAgo)
+      .sort(
+        (a, b) =>
+          new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime(),
+      );
+  }
+
+  private getStoredOrders(): Order[] {
+    const stored = localStorage.getItem("optka-orders");
+    return stored ? JSON.parse(stored) : [];
   }
 }
 
