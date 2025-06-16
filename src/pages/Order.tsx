@@ -8,7 +8,6 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useCart } from "@/hooks/useCart";
 import { OrderData } from "@/types/product";
-import * as XLSX from "xlsx";
 import { useAuth } from "@/hooks/useAuth";
 import { authStore } from "@/store/authStore";
 import { telegramService } from "@/services/telegramService";
@@ -41,106 +40,6 @@ const Order = () => {
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const exportToExcel = async () => {
-    const orderData: OrderData = {
-      ...formData,
-      items,
-      total,
-      orderDate: new Date().toLocaleDateString("ru-RU"),
-    };
-
-    // Создаем данные для Excel
-    const excelData = [
-      ["Заказ OptkaLine", "", "", "", ""],
-      ["Дата заказа:", orderData.orderDate, "", "", ""],
-      ["", "", "", "", ""],
-      ["ИНФОРМАЦИЯ О КЛИЕНТЕ", "", "", "", ""],
-      ["Контактное лицо:", orderData.customerName, "", "", ""],
-      ["Компания:", orderData.company, "", "", ""],
-      ["Телефон:", orderData.phone, "", "", ""],
-      ["Email:", orderData.email, "", "", ""],
-      ["Адрес:", orderData.address, "", "", ""],
-      ["", "", "", "", ""],
-      ["ЗАКАЗАННЫЕ ТОВАРЫ", "", "", "", ""],
-      ["Наименование", "Бренд", "Количество", "Цена за шт.", "Сумма"],
-      ...items.map((item) => [
-        item.product.name,
-        item.product.brand,
-        item.quantity,
-        item.product.price,
-        item.product.price * item.quantity,
-      ]),
-      ["", "", "", "", ""],
-      ["", "", "", "ИТОГО:", total],
-    ];
-
-    // Создаем рабочую книгу
-    const wb = XLSX.utils.book_new();
-    const ws = XLSX.utils.aoa_to_sheet(excelData);
-
-    // Стилизация (базовая)
-    ws["!cols"] = [
-      { width: 30 },
-      { width: 15 },
-      { width: 15 },
-      { width: 15 },
-      { width: 15 },
-    ];
-
-    XLSX.utils.book_append_sheet(wb, ws, "Заказ");
-
-    // Создаем Blob для отправки в Telegram
-    const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
-    const excelBlob = new Blob([excelBuffer], {
-      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    });
-
-    // Отправляем уведомление в Telegram
-    await telegramService.notifyNewOrder(orderData, excelBlob);
-
-    // Скачиваем файл
-    const fileName = `Заказ_OptkaLine_${new Date().toISOString().split("T")[0]}.xlsx`;
-    XLSX.writeFile(wb, fileName);
-
-    // Очищаем корзину и переходим на главную
-    clear();
-    navigate("/", { replace: true });
-  };
-
-  const sendToTelegram = async (orderData: OrderData) => {
-    const telegramMessage = `
-🛍️ *Новый заказ OptkaLine*
-
-📅 *Дата:* ${orderData.orderDate}
-
-👤 *Клиент:*
-• Имя: ${orderData.customerName}
-• Компания: ${orderData.company}
-• Телефон: ${orderData.phone}
-• Email: ${orderData.email}
-• Адрес: ${orderData.address}
-
-📦 *Товары:*
-${orderData.items
-  .map(
-    (item) =>
-      `• ${item.product.name} (${item.product.brand}) × ${item.quantity} = ${(item.product.price * item.quantity).toLocaleString("ru-RU")} ₽`,
-  )
-  .join("\n")}
-
-💰 *Итого: ${orderData.total.toLocaleString("ru-RU")} ₽*
-    `;
-
-    try {
-      const telegramUrl = `https://t.me/leradeen?text=${encodeURIComponent(telegramMessage)}`;
-      window.open(telegramUrl, "_blank");
-      return true;
-    } catch (error) {
-      console.error("Ошибка отправки в Telegram:", error);
-      return false;
-    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
