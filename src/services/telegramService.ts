@@ -1,9 +1,68 @@
 // Сервис для отправки уведомлений в Telegram
 // Заглушки для клиентской части - настоящая интеграция требует серверного API
+import * as XLSX from "xlsx";
+
 const TELEGRAM_BOT_TOKEN = "";
 const TELEGRAM_CHAT_ID = "";
 
 class TelegramService {
+  private createExcelFile(orderData: any): Blob {
+    // Создаем данные для Excel
+    const excelData = [
+      ["ЗАКАЗ OPTKALINE", "", "", "", ""],
+      ["Дата заказа:", orderData.orderDate, "", "", ""],
+      ["", "", "", "", ""],
+      ["ИНФОРМАЦИЯ О КЛИЕНТЕ", "", "", "", ""],
+      ["Контактное лицо:", orderData.customerName, "", "", ""],
+      ["Компания:", orderData.company, "", "", ""],
+      ["Телефон:", orderData.phone, "", "", ""],
+      ["Email:", orderData.email, "", "", ""],
+      ["Адрес доставки:", orderData.address, "", "", ""],
+      ["", "", "", "", ""],
+      ["ЗАКАЗАННЫЕ ТОВАРЫ", "", "", "", ""],
+      ["№", "Наименование", "Бренд", "Кол-во", "Цена", "Сумма"],
+      ...orderData.items.map((item: any, index: number) => [
+        index + 1,
+        item.product.name,
+        item.product.brand,
+        item.quantity,
+        `${item.product.price.toLocaleString("ru-RU")} ₽`,
+        `${(item.product.price * item.quantity).toLocaleString("ru-RU")} ₽`,
+      ]),
+      ["", "", "", "", "", ""],
+      [
+        "",
+        "",
+        "",
+        "",
+        "ИТОГО:",
+        `${orderData.total.toLocaleString("ru-RU")} ₽`,
+      ],
+    ];
+
+    // Создаем рабочую книгу
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.aoa_to_sheet(excelData);
+
+    // Настройка ширины колонок
+    ws["!cols"] = [
+      { width: 5 }, // №
+      { width: 35 }, // Наименование
+      { width: 15 }, // Бренд
+      { width: 10 }, // Кол-во
+      { width: 15 }, // Цена
+      { width: 15 }, // Сумма
+    ];
+
+    XLSX.utils.book_append_sheet(wb, ws, "Заказ");
+
+    // Создаем Blob
+    const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+    return new Blob([excelBuffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+  }
+
   private async sendMessage(message: string): Promise<boolean> {
     try {
       // Имитация отправки сообщения
@@ -44,38 +103,46 @@ class TelegramService {
     return this.sendMessage(message);
   }
 
-  async notifyNewOrder(orderData: any, excelFile?: Blob): Promise<boolean> {
-    if (excelFile) {
-      // Отправляем Excel файл
-      const fileName = `Заказ_OptkaLine_${new Date().toISOString().split("T")[0]}.xlsx`;
-      const caption = `📦 Новый заказ от ${orderData.customerName} (${orderData.company})`;
+  async notifyNewOrder(orderData: any): Promise<boolean> {
+    try {
+      // Создаем Excel файл
+      const excelFile = this.createExcelFile(orderData);
+      const fileName = `Заказ_OptkaLine_${new Date().toISOString().split("T")[0]}_${Date.now()}.xlsx`;
 
-      return this.sendDocument(excelFile, fileName, caption);
+      // Формируем сообщение для Telegram
+      const caption = `📦 НОВЫЙ ЗАКАЗ OPTKALINE
+
+👤 Клиент: ${orderData.customerName}
+🏢 Компания: ${orderData.company}
+📞 Телефон: ${orderData.phone}
+📧 Email: ${orderData.email}
+📍 Адрес: ${orderData.address}
+
+📦 Товаров: ${orderData.items.length} шт.
+💰 Сумма: ${orderData.total.toLocaleString("ru-RU")} ₽
+
+📋 Подробности в Excel файле`;
+
+      // Отправляем файл с подписью
+      const success = await this.sendDocument(excelFile, fileName, caption);
+
+      if (success) {
+        // Дополнительно скачиваем файл локально
+        const url = URL.createObjectURL(excelFile);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+
+      return success;
+    } catch (error) {
+      console.error("Ошибка создания и отправки заказа:", error);
+      return false;
     }
-
-    // Fallback: отправляем текстовое сообщение если файл не предоставлен
-    const itemsTable = orderData.items
-      .map(
-        (item: any, index: number) =>
-          `${index + 1}. ${item.name}\n   Цена: ${item.price.toLocaleString("ru-RU")} ₽\n   Кол-во: ${item.quantity} шт.\n   Итого: ${(item.price * item.quantity).toLocaleString("ru-RU")} ₽`,
-      )
-      .join("\n\n");
-
-    const message = `📦 <b>Новый заказ!</b>
-
-👤 <b>Клиент:</b> ${orderData.customerName}
-🏢 <b>Компания:</b> ${orderData.company}
-📞 <b>Телефон:</b> ${orderData.phone}
-📧 <b>Email:</b> ${orderData.email}
-
-📋 <b>ТОВАРЫ:</b>
-${itemsTable}
-
-💰 <b>ОБЩАЯ СУММА: ${orderData.total.toLocaleString("ru-RU")} ₽</b>
-
-📩 Отправлено пользователю @leradeen`;
-
-    return this.sendMessage(message);
   }
 }
 

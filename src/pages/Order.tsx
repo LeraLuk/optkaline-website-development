@@ -158,20 +158,34 @@ ${orderData.items
       orderDate: new Date().toLocaleDateString("ru-RU"),
     };
 
-    // Отправляем в Telegram
-    const telegramSent = await sendToTelegram(orderData);
+    try {
+      // Отправляем заказ в Telegram с Excel файлом
+      const telegramSent = await telegramService.notifyNewOrder(orderData);
 
-    // Сохраняем заказ в store
-    if (user) {
-      authStore.saveOrder({
-        ...orderData,
-        status: "pending",
-        telegramSent,
-      });
+      // Сохраняем заказ в store
+      if (user) {
+        authStore.saveOrder({
+          ...orderData,
+          status: "pending",
+          telegramSent,
+        });
+      }
+
+      if (telegramSent) {
+        alert(
+          "✅ Заказ успешно оформлен! Excel файл отправлен в Telegram @leradeen",
+        );
+      } else {
+        alert("⚠️ Заказ сохранен, но возникла ошибка при отправке в Telegram");
+      }
+
+      // Очищаем корзину и переходим на главную
+      clear();
+      navigate("/", { replace: true });
+    } catch (error) {
+      console.error("Ошибка оформления заказа:", error);
+      alert("❌ Произошла ошибка при оформлении заказа");
     }
-
-    // Экспортируем Excel
-    await exportToExcel();
   };
 
   if (items.length === 0) {
