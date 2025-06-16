@@ -1,13 +1,38 @@
 import { User, AuthState, Order } from "@/types/product";
-import { telegramService } from "@/services/telegramService";
-import { emailService } from "@/services/emailService";
 
 class AuthStore {
-  private user: User | null = null;
+  private state: AuthState = {
+    user: null,
+    isAuthenticated: false,
+  };
+
+  private orders: Order[] = [];
   private listeners: (() => void)[] = [];
 
   constructor() {
     this.loadFromStorage();
+  }
+
+  private loadFromStorage() {
+    const savedAuth = localStorage.getItem("optka-auth");
+    const savedOrders = localStorage.getItem("optka-orders");
+
+    if (savedAuth) {
+      this.state = JSON.parse(savedAuth);
+    }
+
+    if (savedOrders) {
+      this.orders = JSON.parse(savedOrders);
+    }
+  }
+
+  private saveToStorage() {
+    localStorage.setItem("optka-auth", JSON.stringify(this.state));
+    localStorage.setItem("optka-orders", JSON.stringify(this.orders));
+  }
+
+  private notify() {
+    this.listeners.forEach((listener) => listener());
   }
 
   subscribe(listener: () => void) {
@@ -17,147 +42,62 @@ class AuthStore {
     };
   }
 
-  private notify() {
-    this.listeners.forEach((listener) => listener());
-  }
-
-  private loadFromStorage() {
-    const savedUser = localStorage.getItem("optka-user");
-    if (savedUser) {
-      this.user = JSON.parse(savedUser);
-    }
-  }
-
-  private saveToStorage() {
-    if (this.user) {
-      localStorage.setItem("optka-user", JSON.stringify(this.user));
-    } else {
-      localStorage.removeItem("optka-user");
-    }
-  }
-
-  login(email: string, password: string): boolean {
-    // Простая проверка для демо (в реальном проекте - API)
-    const users = this.getStoredUsers();
-    const user = users.find((u) => u.email === email);
-
-    if (user) {
-      this.user = user;
-      this.saveToStorage();
-      this.notify();
-      return true;
-    }
-    return false;
-  }
-
-  register(userData: Omit<User, "id">): boolean {
-    const users = this.getStoredUsers();
-
-    if (users.find((u) => u.email === userData.email)) {
-      return false;
-    }
-
-    const newUser: User = {
-      ...userData,
-      id: Date.now().toString(),
+  login(user: User) {
+    this.state = {
+      user,
+      isAuthenticated: true,
     };
-
-    users.push(newUser);
-    localStorage.setItem("optka-users", JSON.stringify(users));
-
-    this.user = newUser;
     this.saveToStorage();
     this.notify();
-
-    // Отправляем уведомление в Telegram
-    telegramService.notifyNewRegistration(userData.name, userData.phone);
-
-    // Отправляем данные на email
-    emailService.sendRegistrationNotification(userData.name, userData.phone);
-
-    return true;
   }
 
   logout() {
-    this.user = null;
+    this.state = {
+      user: null,
+      isAuthenticated: false,
+    };
     this.saveToStorage();
     this.notify();
-  }
-
-  updateProfile(userData: Partial<User>): boolean {
-    if (!this.user) return false;
-
-    this.user = { ...this.user, ...userData };
-
-    // Обновляем в общем списке пользователей
-    const users = this.getStoredUsers();
-    const userIndex = users.findIndex((u) => u.id === this.user!.id);
-    if (userIndex !== -1) {
-      users[userIndex] = this.user;
-      localStorage.setItem("optka-users", JSON.stringify(users));
-    }
-
-    this.saveToStorage();
-    this.notify();
-    return true;
-  }
-
-  private getStoredUsers(): User[] {
-    const stored = localStorage.getItem("optka-users");
-    return stored ? JSON.parse(stored) : [];
   }
 
   getUser(): User | null {
-    return this.user;
+    return this.state.user;
   }
 
   isAuthenticated(): boolean {
-    return this.user !== null;
+    return this.state.isAuthenticated;
   }
 
-  getAuthState(): AuthState {
-    return {
-      user: this.user,
-      isAuthenticated: this.isAuthenticated(),
-    };
-  }
-
-  // Методы для работы с заказами
-  saveOrder(orderData: Omit<Order, "id" | "userId">): Order {
-    if (!this.user) throw new Error("Пользователь не авторизован");
+  saveOrder(orderData: any) {
+    if (!this.state.user) return;
 
     const order: Order = {
-      ...orderData,
-      id: Date.now().toString(),
-      userId: this.user.id,
+      id: `order_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      userId: this.state.user.id,
+      customerName: orderData.customerName,
+      company: orderData.company,
+      phone: orderData.phone,
+      email: orderData.email,
+      address: orderData.address,
+      items: orderData.items,
+      total: orderData.total,
+      orderDate: orderData.orderDate,
+      status: orderData.status || "pending",
+      telegramSent: orderData.telegramSent || false,
     };
 
-    const orders = this.getStoredOrders();
-    orders.push(order);
-    localStorage.setItem("optka-orders", JSON.stringify(orders));
-
-    return order;
+    this.orders.push(order);
+    this.saveToStorage();
+    this.notify();
   }
 
   getUserOrders(): Order[] {
-    if (!this.user) return [];
-
-    const orders = this.getStoredOrders();
-    const twoYearsAgo = new Date();
-    twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
-
-    return orders
-      .filter((order) => order.userId === this.user!.id)
-      .filter((order) => new Date(order.orderDate) >= twoYearsAgo)
-      .sort(
-        (a, b) =>
-          new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime(),
-      );
+    if (!this.state.user) return [];
+    return this.orders.filter((order) => order.userId === this.state.user!.id);
   }
 
-  private getStoredOrders(): Order[] {
-    const stored = localStorage.getItem("optka-orders");
-    return stored ? JSON.parse(stored) : [];
+  getAllOrders(): Order[] {
+    return [...this.orders];
   }
 }
 
