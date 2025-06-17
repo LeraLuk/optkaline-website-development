@@ -13,6 +13,7 @@ const ProductPage = () => {
   const { productId } = useParams();
   const { addItem } = useCart();
   const [selectedColor, setSelectedColor] = useState(0);
+  const [quantity, setQuantity] = useState(1);
 
   const product = products.find((p) => p.id === productId);
 
@@ -51,7 +52,14 @@ const ProductPage = () => {
     .slice(0, 3);
 
   const handleAddToCart = () => {
-    addItem(product, 1);
+    addItem(product, quantity);
+  };
+
+  const handleQuantityChange = (delta: number) => {
+    const newQuantity = quantity + delta;
+    if (newQuantity >= 1 && newQuantity <= product.inStock) {
+      setQuantity(newQuantity);
+    }
   };
 
   return (
@@ -151,13 +159,41 @@ const ProductPage = () => {
 
             {/* Actions */}
             <div className="space-y-4">
+              {/* Quantity Selector */}
+              <div className="flex items-center space-x-4">
+                <span className="text-gray-600">Количество:</span>
+                <div className="flex items-center border border-gray-300 rounded-lg">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleQuantityChange(-1)}
+                    disabled={quantity <= 1}
+                    className="px-3 py-1"
+                  >
+                    -
+                  </Button>
+                  <span className="px-4 py-2 min-w-[60px] text-center border-x border-gray-300">
+                    {quantity}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleQuantityChange(1)}
+                    disabled={quantity >= product.inStock}
+                    className="px-3 py-1"
+                  >
+                    +
+                  </Button>
+                </div>
+              </div>
+
               <Button
                 onClick={handleAddToCart}
                 className="w-full bg-blue-600 hover:bg-blue-700 py-3 text-lg"
                 disabled={product.inStock === 0}
               >
                 <ShoppingCart className="h-5 w-5 mr-2" />
-                Добавить в корзину
+                Добавить в корзину ({quantity} шт.)
               </Button>
             </div>
           </div>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { authStore } from "@/store/authStore";
+import { telegramService } from "@/services/telegramService";
 import {
   User,
   AuthState,
@@ -25,13 +26,28 @@ export function useAuth() {
   };
 
   const register = (data: RegisterFormData): boolean => {
-    return authStore.register({
+    const success = authStore.register({
       email: data.email,
       name: data.name,
       company: data.company,
       phone: data.phone,
       address: data.address,
     });
+
+    if (success) {
+      // Отправляем уведомление в Telegram
+      telegramService
+        .sendUserRegistration({
+          name: data.name,
+          company: data.company,
+          phone: data.phone,
+        })
+        .catch((error) => {
+          console.error("Ошибка отправки уведомления о регистрации:", error);
+        });
+    }
+
+    return success;
   };
 
   const logout = () => {

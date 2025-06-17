@@ -11,6 +11,7 @@ interface Filters {
   seasons: string[];
   types: string[];
   priceRange: { min: number; max: number };
+  sortBy: string;
 }
 
 const Catalog = () => {
@@ -23,6 +24,7 @@ const Catalog = () => {
     seasons: [],
     types: [],
     priceRange: { min: 0, max: 0 },
+    sortBy: "",
   });
 
   // Установка фильтров из URL при загрузке
@@ -40,7 +42,7 @@ const Catalog = () => {
   }, [searchParams, urlBrand, urlType]);
 
   const filteredProducts = useMemo(() => {
-    return products.filter((product) => {
+    let result = products.filter((product) => {
       // Бренд
       if (
         filters.brands.length > 0 &&
@@ -87,6 +89,15 @@ const Catalog = () => {
 
       return true;
     });
+
+    // Применяем сортировку
+    if (filters.sortBy === "price-asc") {
+      result.sort((a, b) => a.price - b.price);
+    } else if (filters.sortBy === "price-desc") {
+      result.sort((a, b) => b.price - a.price);
+    }
+
+    return result;
   }, [filters]);
 
   const resetFilters = () => {
@@ -96,6 +107,7 @@ const Catalog = () => {
       seasons: [],
       types: [],
       priceRange: { min: 0, max: 0 },
+      sortBy: "",
     });
   };
 

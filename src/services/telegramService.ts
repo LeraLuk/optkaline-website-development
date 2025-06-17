@@ -103,6 +103,20 @@ class TelegramService {
     return this.sendMessage(message);
   }
 
+  async sendUserRegistration(userData: {
+    name: string;
+    company: string;
+    phone: string;
+  }): Promise<boolean> {
+    const message = `🆕 <b>НОВАЯ РЕГИСТРАЦИЯ OPTKALINE</b>
+
+👤 <b>ФИО:</b> ${userData.name}
+🏢 <b>Компания:</b> ${userData.company}
+📞 <b>Телефон:</b> ${userData.phone}`;
+
+    return this.sendMessage(message);
+  }
+
   async notifyNewOrder(orderData: any): Promise<boolean> {
     try {
       // Создаем Excel файл

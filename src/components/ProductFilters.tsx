@@ -3,6 +3,13 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Filters {
   brands: string[];
@@ -10,6 +17,7 @@ interface Filters {
   seasons: string[];
   types: string[];
   priceRange: { min: number; max: number };
+  sortBy: string;
 }
 
 interface ProductFiltersProps {
@@ -88,6 +96,24 @@ const ProductFilters = ({
               onChange={(e) => handlePriceChange("max", e.target.value)}
             />
           </div>
+        </div>
+
+        {/* Сортировка по цене */}
+        <div>
+          <Label className="text-sm font-semibold">Сортировка по цене</Label>
+          <Select
+            value={filters.sortBy}
+            onValueChange={(value) => onChange({ ...filters, sortBy: value })}
+          >
+            <SelectTrigger className="mt-2">
+              <SelectValue placeholder="Выберите сортировку" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">Без сортировки</SelectItem>
+              <SelectItem value="price-asc">По возрастанию цены</SelectItem>
+              <SelectItem value="price-desc">По убыванию цены</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Бренды */}
