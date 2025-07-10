@@ -42,13 +42,61 @@ class AuthStore {
     };
   }
 
-  login(user: User) {
+  login(email: string, password: string): boolean {
+    // Простая проверка для демо
+    if (email && password) {
+      const user: User = {
+        id: `user_${Date.now()}`,
+        email,
+        name: email.split("@")[0],
+        company: "",
+        phone: "",
+        address: "",
+      };
+
+      this.state = {
+        user,
+        isAuthenticated: true,
+      };
+      this.saveToStorage();
+      this.notify();
+      return true;
+    }
+    return false;
+  }
+
+  register(userData: {
+    email: string;
+    name: string;
+    company: string;
+    phone: string;
+    address: string;
+  }): boolean {
+    const user: User = {
+      id: `user_${Date.now()}`,
+      email: userData.email,
+      name: userData.name,
+      company: userData.company,
+      phone: userData.phone,
+      address: userData.address,
+    };
+
     this.state = {
       user,
       isAuthenticated: true,
     };
     this.saveToStorage();
     this.notify();
+    return true;
+  }
+
+  updateProfile(userData: Partial<User>): boolean {
+    if (!this.state.user) return false;
+
+    this.state.user = { ...this.state.user, ...userData };
+    this.saveToStorage();
+    this.notify();
+    return true;
   }
 
   logout() {
