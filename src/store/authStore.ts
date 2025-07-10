@@ -68,6 +68,10 @@ class AuthStore {
     return this.state.isAuthenticated;
   }
 
+  getAuthState(): AuthState {
+    return { ...this.state };
+  }
+
   saveOrder(orderData: any) {
     if (!this.state.user) return;
 
